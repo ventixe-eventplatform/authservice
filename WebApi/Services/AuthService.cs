@@ -36,6 +36,14 @@ public class AuthService(HttpClient httpClient) : IAuthService
         return new AuthServiceResultModel { Success = false, Error = error };
     }
 
+    public async Task SignOutAsync()
+    {
+        var response = await _httpClient.PostAsJsonAsync("https://localhost:7050/api/accounts/signout", "");
+
+        if (!response.IsSuccessStatusCode)
+            throw new ApplicationException("Signout failed.");
+    }
+
     public async Task<AuthServiceResultModel> UserExistsAsync(EmailRequest request)
     {
         var response = await _httpClient.PostAsJsonAsync("https://localhost:7050/api/accounts/exists", request);

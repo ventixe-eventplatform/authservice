@@ -11,23 +11,30 @@ public class AuthController(IAuthService authService) : ControllerBase
     private readonly IAuthService _authService = authService;
 
     [HttpPost("register")]
-    public async Task<IActionResult> Register(RegisterRequestModel request)
+    public async Task<IActionResult> Register([FromBody] RegisterRequestModel request)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
         var result = await _authService.RegisterAsync(request);
-        return result.Success ? Ok(result) : StatusCode(500, result.Error);
+        return result.Success ? Ok(result) : StatusCode(500, new { error = result.Error});
     }
 
     [HttpPost("signin")]
-    public async Task<IActionResult> SignIn(SignInRequestModel request)
+    public async Task<IActionResult> SignIn([FromBody] SignInRequestModel request)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
         var result = await _authService.SignInAsync(request);
-        return result.Success ? Ok(result) : StatusCode(500, result.Error);
+        return result.Success ? Ok(result) : StatusCode(500, new { error = result.Error});
+    }
+
+    [HttpPost("signout")]
+    public async Task<IActionResult> SignOutAsync()
+    {
+        await _authService.SignOutAsync();
+        return Ok();
     }
 
     [HttpPost("exists")]

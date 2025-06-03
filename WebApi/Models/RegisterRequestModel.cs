@@ -9,7 +9,7 @@ public class RegisterRequestModel
     public string Email { get; set; } = null!;
 
     [Required]
-    [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])[\s\S]{8,}$")]
+    [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[\s\S]{8,}$")]
     public string Password { get; set; } = null!;
 
     [Required]
