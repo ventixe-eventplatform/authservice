@@ -2,13 +2,21 @@
 
 namespace WebApi.Services;
 
-public class AuthService(HttpClient httpClient) : IAuthService
+public class AuthService : IAuthService
 {
-    private readonly HttpClient _httpClient = httpClient;
+    private readonly HttpClient _httpClient;
+    private readonly IConfiguration _configuration;
+
+    public AuthService(HttpClient httpClient, IConfiguration configuration)
+    {
+        _httpClient = httpClient;
+        _configuration = configuration;
+    }
 
     public async Task<AuthServiceResultModel> RegisterAsync(RegisterRequestModel requestModel)
     {
-        var response = await _httpClient.PostAsJsonAsync("https://localhost:7050/api/accounts/register", requestModel);
+        var baseUrl = _configuration["AccountServiceBaseUrl"];
+        var response = await _httpClient.PostAsJsonAsync($"{baseUrl}/api/accounts/register", requestModel);
 
         if (response.IsSuccessStatusCode)
         {
@@ -23,7 +31,8 @@ public class AuthService(HttpClient httpClient) : IAuthService
 
     public async Task<AuthServiceResultModel> SignInAsync(SignInRequestModel requestModel)
     {
-        var response = await _httpClient.PostAsJsonAsync("https://localhost:7050/api/accounts/signin", requestModel);
+        var baseUrl = _configuration["AccountServiceBaseUrl"];
+        var response = await _httpClient.PostAsJsonAsync($"{baseUrl}/api/accounts/signin", requestModel);
 
         if (response.IsSuccessStatusCode)
         {
@@ -38,7 +47,8 @@ public class AuthService(HttpClient httpClient) : IAuthService
 
     public async Task SignOutAsync()
     {
-        var response = await _httpClient.PostAsJsonAsync("https://localhost:7050/api/accounts/signout", "");
+        var baseUrl = _configuration["AccountServiceBaseUrl"];
+        var response = await _httpClient.PostAsJsonAsync($"{baseUrl}/api/accounts/signout", "");
 
         if (!response.IsSuccessStatusCode)
             throw new ApplicationException("Signout failed.");
@@ -46,7 +56,8 @@ public class AuthService(HttpClient httpClient) : IAuthService
 
     public async Task<AuthServiceResultModel> UserExistsAsync(EmailRequest request)
     {
-        var response = await _httpClient.PostAsJsonAsync("https://localhost:7050/api/accounts/exists", request);
+        var baseUrl = _configuration["AccountServiceBaseUrl"];
+        var response = await _httpClient.PostAsJsonAsync($"{baseUrl}/api/accounts/exists", request);
 
         if (!response.IsSuccessStatusCode)
             return new AuthServiceResultModel { Success = false, Error = await response.Content.ReadAsStringAsync() };
