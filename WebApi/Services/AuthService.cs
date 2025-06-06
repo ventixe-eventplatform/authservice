@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using Microsoft.AspNetCore.Mvc;
 using WebApi.Models;
 
 namespace WebApi.Services;
@@ -51,7 +52,9 @@ public class AuthService : IAuthService
     public async Task SignOutAsync()
     {
         var baseUrl = _configuration["AccountServiceBaseUrl"];
-        var response = await _httpClient.PostAsJsonAsync($"{baseUrl}/api/accounts/signout", "");
+        var request = new HttpRequestMessage(HttpMethod.Post, $"{baseUrl}/api/accounts/signout");
+        request.Content = null;
+        var response = await _httpClient.SendAsync(request);
 
         if (!response.IsSuccessStatusCode)
             throw new ApplicationException("Signout failed.");
