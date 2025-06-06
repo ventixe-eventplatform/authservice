@@ -17,17 +17,25 @@ public class AuthController(IAuthService authService) : ControllerBase
             return BadRequest(ModelState);
 
         var result = await _authService.RegisterAsync(request);
-        return result.Success ? Ok(result) : StatusCode(500, new { error = result.Error});
+
+        if (!result.Success)
+            return Unauthorized(new { Error = result.Error! });
+
+        return Ok(result.Data);
     }
 
     [HttpPost("signin")]
     public async Task<IActionResult> SignIn([FromBody] SignInRequestModel request)
     {
         if (!ModelState.IsValid)
-            return BadRequest(ModelState);
+            return BadRequest(new { Error = "Email and password do not match." });
 
         var result = await _authService.SignInAsync(request);
-        return result.Success ? Ok(result) : StatusCode(500, new { error = result.Error});
+
+        if (!result.Success)
+            return Unauthorized(new { Error = result.Error! });
+
+        return Ok(result.Data);
     }
 
     [HttpPost("signout")]
