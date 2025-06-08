@@ -4,6 +4,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 builder.Services.AddHttpClient<IAuthService, AuthService>();
+builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddCors(x =>
 {
@@ -15,6 +16,7 @@ builder.Services.AddCors(x =>
             .AllowCredentials();
     });
 });
+
 var app = builder.Build();
 
 app.MapOpenApi();

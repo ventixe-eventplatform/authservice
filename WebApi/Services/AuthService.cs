@@ -1,19 +1,13 @@
-﻿using System.Diagnostics;
-using Microsoft.AspNetCore.Mvc;
+﻿using System.Net.Http.Headers;
 using WebApi.Models;
 
 namespace WebApi.Services;
 
-public class AuthService : IAuthService
+public class AuthService(HttpClient httpClient, IConfiguration configuration, IHttpContextAccessor contextAccessor) : IAuthService
 {
-    private readonly HttpClient _httpClient;
-    private readonly IConfiguration _configuration;
-
-    public AuthService(HttpClient httpClient, IConfiguration configuration)
-    {
-        _httpClient = httpClient;
-        _configuration = configuration;
-    }
+    private readonly HttpClient _httpClient = httpClient;
+    private readonly IConfiguration _configuration = configuration;
+    private readonly IHttpContextAccessor _contextAccessor = contextAccessor;
 
     public async Task<AuthServiceResultModelT<SignInResponseModel>> RegisterAsync(RegisterRequestModel requestModel)
     {
@@ -52,8 +46,12 @@ public class AuthService : IAuthService
     public async Task SignOutAsync()
     {
         var baseUrl = _configuration["AccountServiceBaseUrl"];
+        var token = _contextAccessor.HttpContext?.Request.Headers.Authorization.ToString();
+
         var request = new HttpRequestMessage(HttpMethod.Post, $"{baseUrl}/api/accounts/signout");
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token?.Replace("Bearer ", ""));
         request.Content = null;
+        
         var response = await _httpClient.SendAsync(request);
 
         if (!response.IsSuccessStatusCode)
